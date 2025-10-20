@@ -1,0 +1,57 @@
+// ----- ELEMENTARY FNS ------
+
+atom(x) // return true if x is an atom
+eq(x,y) // return true if x==y. both args must be atoms
+car(x) // get left child. x must be a list
+cdr(x) // get right child. x must be a list
+cons(x,y) // return {left:x, right:y}
+
+ff(x) // leftmost atom in x
+subst(x,y,z) // find all y (atom) in z, replace by x
+equal(x,y) // deep compare x==y
+null(x) // true if x is NIL
+
+cadr(x) // car(cadr(x)). go right then left
+    // from r towards c. d=right, a=left
+
+append(x,y) // (a,b), (c,d,e) -> (a,b,c,d,e)
+among(x,y) // returns true if x is in y (list)
+pair(x,y) // (a,b), (c,d) -> ((a,c), (b,d))
+assoc(x,y) // x, ((x,a),(y,b)) -> a
+            // in js, get y[x]
+sublis(x,y) // make changes on expr y according to
+    // pairs in x. like subst but multiple.
+
+appq(x) // (a,b) -> ((QUOTE,a), (QUOTE,b))
+apply(f,args) // f, (a,b) -> (eval, f, (QUOTE,a), (QUOTE,b))
+list(x,y,...z) // forms list (x,y,.... z) 
+
+
+// eval fn:
+
+atom [e] → assoc [e; a];
+atom [car [e]] → [
+    eq [car [e]; QUOTE] → cadr [e]; // (QUOTE, ARG) -> ARG
+    eq [car [e]; ATOM] → atom [eval [cadr [e]; a]]; // (ATOM, (QUOTE, A)) -> T
+    eq [car [e]; EQ] → [eval [cadr [e]; a] = eval [caddr [e]; a]]; // (EQ, (QUOTE, A), (QUOTE, B)) -> F
+    eq [car [e]; COND] → evcon [cdr [e]; a];
+    eq [car [e]; CAR] → car [eval [cadr [e]; a]]; // (CAR, (QUOTE, (A,B,C))) -> A
+    eq [car [e]; CDR] → cdr [eval [cadr [e]; a]]; // (CDR, (QUOTE, (A,B,C))) -> (B,C)
+    eq [car [e]; CONS] → cons [eval [cadr [e]; a]; eval [caddr [e]; a]]; // (CONS, (QUOTE, A), (QUOTE, (B,C))) -> (A,B,C)
+    T → eval [cons [assoc [car [e]; a]; evlis [cdr [e]; a]]; a]
+];
+eq [caar [e]; LABEL] → eval [
+        cons [caddar [e]; cdr [e]];
+        cons [list [cadar [e]; car [e]]; a]
+    ];
+eq [caar [e]; LAMBDA] → eval [
+        caddar [e];
+        append [
+            pair [
+                cadar [e];
+                evlis [cdr [e]; a];
+            ];
+            a
+        ]
+    ]
+I
