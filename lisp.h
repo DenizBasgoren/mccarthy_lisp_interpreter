@@ -29,7 +29,8 @@ int register_atom_id(char* atom_name);
 int allocate_node(void);
 void save_png_of_nodes (void);
 void garbage_collect(int top_node_id );
-// void deallocate_tree(int root);
-// void deallocate_node(int n);
+void print_str20(const char *s);
+void print_ast_no_spaces(int top_node_id );
+void save_png_of_tree (int top_node_id);
 
 #endif // LISP_H

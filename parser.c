@@ -188,7 +188,9 @@ void print_node(int node_id, int current_depth);
 void print_all(int top_node_id) {
     puts("\nAtoms-----");
     for (int i = 0; i<atom_names_first_empty_index; i++) {
-        printf("id=%4u name=%s \n", i, atom_names[i]);
+        printf("id=%4u name=", i);
+        print_str20(atom_names[i]);
+        printf("\n");
     }
 
     puts("\nNodes-----");
@@ -322,14 +324,16 @@ int main(int argc, char**argv ) {
     }
     printf("top node id = %4u \n\n", res.node_id);
 
+    garbage_collect(0);
     print_all(res.node_id);
 
-    save_png_of_nodes();
+    save_png_of_tree(0);
 
-    garbage_collect(0);
+    puts("Exp serialized before gc:");
+    print_ast_no_spaces(0);
 
-    save_png_of_nodes();
-    
+
+
     
 
 }

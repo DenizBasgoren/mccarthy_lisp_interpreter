@@ -54,4 +54,59 @@ eq [caar [e]; LAMBDA] → eval [
             a
         ]
     ]
-I
+
+
+/*
+    it seems like all except QUOTE first evaluate their args...
+    
+    (QUOTE, A, B) -> A. B is ignored.
+    (ATOM, A, B) -> eval(A). B is ignored. So do (ATOM, (QUOTE, A)) to get A.
+    (EQ, A, B) -> eq(eval(A), eval(B)). So values of A, B are compared.
+    if you do (EQ, (QUOTE, A), (QUOTE, B)) then you just compare A==B? it gives F.
+
+    (f, a, b) -> eval(eval(f), eval(a), eval(b)). here f should be turned to lambda.
+    evlis:
+    (A, B, C) -> (eval(A), eval(B), eval(C))
+
+    for lambda stuff, format is
+    (
+        (LAMBDA, (X,Y), (+,X,Y)), a, b
+    )
+
+    so we first eval a and b. Then we eval (+,X,Y) part with extended variable list
+    to extend variable list, we use pair((X,Y), (1,2))
+    and we get ((X,1),(Y,2)). then we append this to a (variable list)
+
+
+    cond thing:
+    (COND, (X=A,1), (X=B,2), (T,3)) returns either 1, 2 or 3.
+
+    label thing:
+    we basically do eval but change both expr and variable list.
+    expr is originally ((LABEL, f, Lx.x), (QUOTE, A)).
+    it becomes (Lx.x, (QUOTE, A)).
+    variable list is originally ((A,1),(B,2)).
+    it becomes ( (f,(LABEL,f,Lx.x)), (A,1), (B,2) )
+
+*/
+
+/*
+
+(LABEL,
+SUBST,
+(LAMBDA, (X, Y, Z),
+    (COND,
+        ((ATOM, Z),
+            (COND,
+                ((EQ, Y, Z), X),
+                ((QUOTE, T), Z)
+            )
+        ),
+        ((QUOTE, T),
+            (CONS, (SUBST, X, Y, (CAR, Z)), (SUBST, X, Y, (CDR, Z)))
+        )
+    )
+)
+)
+
+*/

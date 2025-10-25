@@ -332,7 +332,39 @@ int eval(int e, int a) {
 
     if ( is_T(atom(e)) ) return assoc(e,a);
     if ( is_T(atom(car(e))) ) {
-
+        if ( is_T(eq(car(e), new_atom_node("QUOTE")))) {
+            return cadr(e);
+        }
+        if ( is_T(eq(car(e), new_atom_node("ATOM")))) {
+            return atom(eval(cadr(e),a));
+        }
+        if ( is_T(eq(car(e), new_atom_node("EQ")))) {
+            return eq(
+                eval(cadr(e),a),
+                eval(caddr(e),a)
+            );
+        }
+        if ( is_T(eq(car(e), new_atom_node("COND")))) {
+            return evcon(cdr(e), a);
+        }
+        if ( is_T(eq(car(e), new_atom_node("CAR")))) {
+            return car(eval(cadr(e),a));
+        }
+        if ( is_T(eq(car(e), new_atom_node("CDR")))) {
+            return cdr(eval(cadr(e),a));
+        }
+        if ( is_T(eq(car(e), new_atom_node("CONS")))) {
+            return cons(
+                eval(cadr(e),a),
+                eval(caddr(e),a)
+            );
+        }
+        return eval(
+            cons(
+                assoc(car(e),a),
+                evlis(cdr(e),a)
+            ), a
+        );
     }
     if ( is_T( eq(caar(e), new_atom_node("LABEL")) ) ) return eval(
         cons(caddar(e), cdr(e)),
