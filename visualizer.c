@@ -18,13 +18,6 @@
 // AST to S-expression
 // =======================
 
-void print_str20(const char *s) {
-    for (int i = 0; i < 20; i++) {
-        if (s[i] == '\0') break;
-        putchar(s[i]);
-    }
-}
-
 void print_ast_no_spaces(int top_node_id ) {
     Node n = nodes[top_node_id];
 
@@ -34,7 +27,7 @@ void print_ast_no_spaces(int top_node_id ) {
     }
 
     if ( n.node_type==ATOM ) {
-        print_str20(atom_names[n.atom_id]);
+        printf("%s", atom_names[n.atom_id]);
         return;
     }
     
@@ -63,7 +56,7 @@ void print_ast_no_spaces(int top_node_id ) {
 
     if ( n.atom_id != register_atom_id("NIL")) {
         putchar(':');
-        print_str20( atom_names[n.atom_id] );
+        printf("%s", atom_names[n.atom_id] );
     }
 
     putchar(')');

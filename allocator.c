@@ -11,7 +11,7 @@ void mark_allocated_recursive(int node_id) {
 }
 
 void garbage_collect(int top_node_id ) {
-    for (int i = 0; i<100000; i++) {
+    for (int i = 0; i<NODE_TOTAL; i++) {
         nodes[i].allocated = false;
     }
 
@@ -20,7 +20,7 @@ void garbage_collect(int top_node_id ) {
 }
 
 int allocate_node(void) {
-    for (int i = 0; i<100000; i++) {
+    for (int i = 0; i<NODE_TOTAL; i++) {
         if ( !nodes[i].allocated ) {
             nodes[i].allocated = true;
             return i;
@@ -30,7 +30,7 @@ int allocate_node(void) {
     // all allocated. do garbage collection
     garbage_collect(0);
 
-    for (int i = 0; i<100000; i++) {
+    for (int i = 0; i<NODE_TOTAL; i++) {
         if ( !nodes[i].allocated ) {
             nodes[i].allocated = true;
             return i;

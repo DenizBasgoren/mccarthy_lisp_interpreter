@@ -7,37 +7,32 @@
 
 
 
-Node nodes[100000];
+Node nodes[NODE_TOTAL];
 
-AtomName atom_names[1000];
+AtomName atom_names[ATOM_TOTAL];
 int atom_names_first_empty_index = 0;
 
-bool str_equal_20(char* str1, char* str2) {
+bool str_equal(char* str1, char* str2) {
     if (str1[0]==0 || str2[0]==0) {
         puts("trying to compare empty symbol name");
         exit(1);
     }
 
-    for (int i = 0; i<20; i++) {
-        if (str1[i]==0 && str2[i]==0) return true;
-        if (str1[i]==0 || str2[i]==0) return false;
-        if (str1[i] != str2[i]) return false;
-    }
-    return true;
+    return strcmp(str1, str2) == 0;
 }
 
 int register_atom_id(char* atom_name) {
     for (int i = 0; i<atom_names_first_empty_index; i++) {
-        if ( str_equal_20(atom_name, atom_names[i]) ) {
+        if ( str_equal(atom_name, atom_names[i]) ) {
             return i;
         }
     }
-    if (atom_names_first_empty_index == 1000) {
+    if (atom_names_first_empty_index == ATOM_TOTAL) {
         puts("too many symbols");
         exit(1);
     }
     // copy the name
-    for (int i = 0; i<20; i++) {
+    for (int i = 0; i<ATOM_MAX_LEN+1; i++) {
         atom_names[atom_names_first_empty_index][i] = atom_name[i];
     }
     return atom_names_first_empty_index++;
@@ -77,7 +72,7 @@ bool is_atom_char(char c) {
 ParseResult parse_atom(char *src) {
     AtomName atom = {0};
     int i = 0;
-    for ( ; i<20; i++) {
+    for ( ; i<ATOM_MAX_LEN; i++) {
         if ( is_atom_char( src[i] ) ) {
             atom[i] = src[i];
         }
@@ -188,13 +183,11 @@ void print_node(int node_id, int current_depth);
 void print_all(int top_node_id) {
     puts("\nAtoms-----");
     for (int i = 0; i<atom_names_first_empty_index; i++) {
-        printf("id=%4u name=", i);
-        print_str20(atom_names[i]);
-        printf("\n");
+        printf("id=%4u name=%s\n", i, atom_names[i]);
     }
 
     puts("\nNodes-----");
-    for (int i = 0; i<100000; i++) {
+    for (int i = 0; i<NODE_TOTAL; i++) {
         Node node = nodes[i];
         if (!node.allocated) continue;
         if (node.node_type == ATOM) {
