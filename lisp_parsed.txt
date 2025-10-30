@@ -1,6 +1,6 @@
 source code (with, without spaces):
-(CAR, (QUOTE, (A,B)))
-(CAR,(QUOTE,(A,B)))
+(CAR, (QUOTE, (A,B,C)))
+(CAR,(QUOTE,(A,B,C)))
 top node id =    0 
 
 
@@ -9,22 +9,25 @@ id=   0 name=CAR
 id=   1 name=QUOTE
 id=   2 name=A
 id=   3 name=B
-id=   4 name=NIL
+id=   4 name=C
+id=   5 name=NIL
 
 Nodes-----
-id=   0 left=   1 right=   2 
-id=   1 atom_id=   0 
-id=   2 left=  19 right=  35 
-id=  19 left=  20 right=  21 
-id=  20 atom_id=   1 
-id=  21 left=  28 right=  34 
-id=  28 left=  29 right=  30 
-id=  29 atom_id=   2 
-id=  30 left=  32 right=  33 
-id=  32 atom_id=   3 
-id=  33 atom_id=   4 
-id=  34 atom_id=   4 
-id=  35 atom_id=   4 
+id=   0 gc=1 left=   1 right=   2 
+id=   1 gc=0 atom_id=   0 
+id=   2 gc=0 left=  23 right=  43 
+id=  23 gc=0 left=  24 right=  25 
+id=  24 gc=0 atom_id=   1 
+id=  25 gc=0 left=  34 right=  42 
+id=  34 gc=0 left=  35 right=  36 
+id=  35 gc=0 atom_id=   2 
+id=  36 gc=0 left=  37 right=  38 
+id=  37 gc=0 atom_id=   3 
+id=  38 gc=0 left=  40 right=  41 
+id=  40 gc=0 atom_id=   4 
+id=  41 gc=0 atom_id=   5 
+id=  42 gc=0 atom_id=   5 
+id=  43 gc=0 atom_id=   5 
 
 Tree-----
 
@@ -38,8 +41,10 @@ Tree-----
         │       │   ├── A
         │       │   └── 
         │       │       ├── B
-        │       │       └── NIL
+        │       │       └── 
+        │       │           ├── C
+        │       │           └── NIL
         │       └── NIL
         └── NIL
 Exp serialized before gc:
-(CAR,(QUOTE,(A,B)))
+(CAR,(QUOTE,(A,B,C)))

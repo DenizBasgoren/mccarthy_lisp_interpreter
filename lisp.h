@@ -29,10 +29,14 @@ extern int atom_names_first_empty_index;
 
 void draw_tree_ascii(int top_node_id);
 int register_atom_id(char* atom_name);
-int allocate_node(void);
+int allocate_node(bool add_to_roots);
 void save_png_of_nodes (void);
-void garbage_collect(int top_node_id );
+void garbage_collect(void );
 void print_ast_no_spaces(int top_node_id );
 void save_png_of_tree (int top_node_id);
+bool is_gc_root(int node_id);
+void add_to_gc_roots(int node_id );
+void delete_from_gc_roots(int node_id);
+void init_gc_roots(void);
 
 #endif // LISP_H

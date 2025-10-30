@@ -7,9 +7,9 @@
 
 
 
-Node nodes[NODE_TOTAL];
+Node nodes[NODE_TOTAL] = {0};
 
-AtomName atom_names[ATOM_TOTAL];
+AtomName atom_names[ATOM_TOTAL] = {0};
 int atom_names_first_empty_index = 0;
 
 bool str_equal(char* str1, char* str2) {
@@ -32,9 +32,8 @@ int register_atom_id(char* atom_name) {
         exit(1);
     }
     // copy the name
-    for (int i = 0; i<ATOM_MAX_LEN+1; i++) {
-        atom_names[atom_names_first_empty_index][i] = atom_name[i];
-    }
+    strcpy(atom_names[atom_names_first_empty_index], atom_name);
+    
     return atom_names_first_empty_index++;
 }
 
@@ -59,15 +58,6 @@ bool is_atom_char(char c) {
            (c == '_');
 }
 
-// counts itself, and all children
-// int count_nodes(int node_id) {
-//     Node node = nodes[node_id];
-//     if (node.node_type==ATOM) return 1;
-//     int left_sum = count_nodes(node.left_child);
-//     int right_sum = count_nodes(node.right_child);
-//     return left_sum + right_sum + 1;
-// }
-
 
 ParseResult parse_atom(char *src) {
     AtomName atom = {0};
@@ -82,7 +72,7 @@ ParseResult parse_atom(char *src) {
     // not an atom
     if (i==0) return (ParseResult) {.accepted=false};
     
-    int new_node_id = allocate_node();
+    int new_node_id = allocate_node(false);
     Node* node = &nodes[ new_node_id ];
     node->node_type = ATOM;
     node->atom_id = register_atom_id(atom);
@@ -134,7 +124,7 @@ ParseResult parse_list(char *src) {
     if (*src!='(') return (ParseResult) {.accepted=false};
     advance_by = 1;
 
-    int top_node_id = allocate_node();
+    int top_node_id = allocate_node(false);
     int current_node_id = top_node_id;
 
     nodes[current_node_id].node_type = LIST;
@@ -145,7 +135,7 @@ ParseResult parse_list(char *src) {
         advance_by += res.advance_by_n_chars;
         // place the node
         nodes[current_node_id].left_child = res.node_id;
-        current_node_id = nodes[current_node_id].right_child = allocate_node();
+        current_node_id = nodes[current_node_id].right_child = allocate_node(false);
         nodes[current_node_id].node_type = LIST;
     }
 
@@ -163,7 +153,7 @@ ParseResult parse_list(char *src) {
     }
     else {
         // add NIL
-        int nil_node_id = allocate_node();
+        int nil_node_id = allocate_node(false);
         nodes[nil_node_id].node_type = ATOM;
         nodes[nil_node_id].atom_id = register_atom_id("NIL");
         nodes[current_node_id].right_child = nil_node_id;
@@ -191,10 +181,10 @@ void print_all(int top_node_id) {
         Node node = nodes[i];
         if (!node.allocated) continue;
         if (node.node_type == ATOM) {
-            printf("id=%4u atom_id=%4u \n", i, node.atom_id);
+            printf("id=%4u gc=%1d atom_id=%4u \n", i, is_gc_root(i), node.atom_id);
         }
         else if (node.node_type == LIST) {
-            printf("id=%4u left=%4u right=%4u \n", i, node.left_child, node.right_child);
+            printf("id=%4u gc=%1d left=%4u right=%4u \n", i, is_gc_root(i), node.left_child, node.right_child);
         }
     }
 
@@ -254,44 +244,8 @@ char* read_file_to_string(const char* filename) {
     return buffer;
 }
 
-// void print_node(int node_id, int current_depth) {
-//     Node node = nodes[node_id];
-
-//     if (node.node_type==ATOM) {
-//         for (int i = 0; i<current_depth; i++) {
-//             printf(" ");
-//         }
-//         if (node.atom_id >= atom_names_first_empty_index) {
-//             printf("? (%d)\n", node.atom_id);
-//         }
-//         else {
-//             printf("%s\n", atom_names[node.atom_id]);
-//         }
-//     }
-//     else { // LIST
-//         print_node(node.left_child, current_depth+4);
-//         print_node(node.right_child, current_depth+4);
-//     }
-// }
 
 int main(int argc, char**argv ) {
-
-    // "(LABEL," \
-    // "SUBST," \
-    // "(LAMBDA, (X, Y, Z)," \
-    // "    (COND," \
-    // "        ((ATOM, Z)," \
-    // "            (COND," \
-    // "                ((EQ, Y, Z), X)," \
-    // "                ((QUOTE, T), Z)" \
-    // "            )" \
-    // "        )," \
-    // "        ((QUOTE, T)," \
-    // "            (CONS, (SUBST, X, Y, (CAR, Z)), (SUBST, X, Y, (CDR, Z)))" \
-    // "        )" \
-    // "    )" \
-    // ")" \
-    // ")";
 
     if (argc != 2) {
         printf("Usage: %s lisp_source_code.txt\n", argv[0]);
@@ -310,6 +264,8 @@ int main(int argc, char**argv ) {
     puts(src);
     puts(src_nospaces);
 
+    init_gc_roots();
+    
     ParseResult res = parse_exp(src_nospaces);
     if (!res.accepted || res.advance_by_n_chars!=strlen(src_nospaces)) {
         puts(":(");
@@ -317,7 +273,9 @@ int main(int argc, char**argv ) {
     }
     printf("top node id = %4u \n\n", res.node_id);
 
-    garbage_collect(0);
+    add_to_gc_roots(0);
+
+    garbage_collect();
     print_all(res.node_id);
 
     save_png_of_tree(0);
